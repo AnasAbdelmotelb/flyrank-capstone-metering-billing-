@@ -1,8 +1,9 @@
 # LLM Usage Metering & Billing Service
 
 FastAPI + SQLite backend for tenant-scoped monthly usage, quotas, and costs.
-**Current milestone:** design and core billing. Stripe and background jobs are
-pending; this is not yet a complete capstone submission.
+Stripe test Checkout, signed subscription webhooks, and a durable monthly rollup
+worker are implemented. Local automated checks pass. A genuine Stripe test
+Checkout and replay still need account-specific verification before submission.
 
 ## Architecture
 
@@ -12,6 +13,8 @@ Bearer API key -> FastAPI validation -> MeterService -> SQLite
                               single write transaction
                               deduplicate -> quota -> event
 GET /usage -> tenant/month rollup -> used, limit, cost
+Stripe test Checkout -> signed webhook -> current subscription -> tenant plan
+Separate worker -> persistent jobs -> monthly_rollups / failure alerts
 ```
 
 See [DESIGN.md](DESIGN.md) for contracts, decisions, and the phase checklist.
@@ -24,7 +27,7 @@ Requires Python 3.11+. No paid services, Docker, or AI key needed.
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m app.seed
-.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+.venv/bin/python -m app.run
 ```
 
 The seed command creates Free and Pro demo tenants and prints their randomly
@@ -39,7 +42,9 @@ seeded API key. `/health` needs no authentication. The server binds to localhost
 
 Optional configuration: export `DATABASE_PATH=/path/to/billing.db` before both
 seed and run commands. Default: `billing.db` in the working directory.
-`.env.example` documents it; `.env` is not automatically loaded.
+`.env.example` documents settings; a project-root `.env` is loaded automatically.
+Explicit environment variables take precedence. Copy `.env.example` to `.env`
+and replace Stripe placeholders locally when ready for payment testing.
 
 ```bash
 export API_KEY='paste-your-seeded-key-here'
@@ -82,20 +87,60 @@ persisted event costs rather than repricing history.
 
 ```bash
 .venv/bin/python -m pytest -q
+.venv/bin/python -m scripts.check_secrets
 ```
 
 Tests cover concurrent retries, concurrent quota races, boundaries, exact prices,
 isolation, validation, persistence, and month rollover. Evidence: [EVIDENCE.md](EVIDENCE.md).
 
+## Stripe test setup
+
+Follow [STRIPE_SETUP.md](STRIPE_SETUP.md) for the exact account, CLI, Checkout,
+webhook, and evidence steps. The recurring subscription price is independent of
+the illustrative usage-cost calculator; this project does not invoice usage.
+
+`POST /billing/checkout` requires a tenant Bearer key. It returns a hosted URL,
+reuses an unexpired session, and rejects a second active Stripe subscription.
+Return redirects do not grant access. Only verified events synchronize plans.
+The webhook handles Checkout completion and subscription create/update/delete.
+Each event ID and its state change commit together. The handler retrieves current
+Stripe state under the write lock to protect against out-of-order snapshots.
+Unknown tenants and unrelated event types are ignored. Unknown prices are rejected.
+Only the configured Pro price, quantity one, and test objects are accepted.
+
+Active/trialing subscriptions receive Pro; other ongoing statuses block billable
+requests with 402. Canceled/expired subscriptions return to active Free, retaining
+the month's usage. Upgrades and downgrades do not reset usage or change historical
+costs. Multiple simultaneous subscriptions require operator reconciliation.
+
+## Background processing
+
+The documented run command starts both Uvicorn and a separate worker process.
+For independent operation use `.venv/bin/python -m app.worker` and
+`.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000` in separate terminals.
+`.venv/bin/python -m app.worker --once` schedules and drains currently ready work.
+
+The worker schedules a unique tenant/month job for last month and historical
+closed months with usage. It checks every two seconds. Jobs have a 60-second
+lease, three attempts, and exponential backoff (2 then 4 seconds). Committed
+rollup and completion are atomic; interrupted jobs recover after lease expiry.
+Final failures create a durable `job_alerts` row and emit an error on stderr.
+Authenticated `GET /jobs/alerts` shows only the tenant's alerts;
+`GET /usage/history` shows up to 24 closed-month summaries. No external email or
+Slack notifications are sent. Current-month `/usage` always reads source events.
+
 ## Remaining work and limitations
 
-- Stripe test Checkout, signature verification, webhook deduplication and plan sync.
-- Durable background rollup job, retries, and failure alerts.
-- Create a dedicated public GitHub repository and complete submission evidence.
+- Complete real Stripe test Checkout and CLI replay evidence (see setup guide).
+- Repeat account-dependent setup on a fresh clone before portal submission.
 - SQLite serializes writes; this local demo is intended for modest workloads.
+  Stripe network calls have an 8-second timeout and hold the write lock, trading
+  throughput for simple ordering. Failed calls leave events retryable.
 - Idempotency records are retained indefinitely. No live AI calls or external
   side effects are executed; exactly-once behavior applies to local metering.
 - No self-service tenant creation or key rotation HTTP endpoint yet.
 
 Implementation references: [SQLite transactions](https://www.sqlite.org/lang_transaction.html)
-and [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/).
+and [FastAPI testing](https://fastapi.tiangolo.com/tutorial/testing/),
+[Stripe webhooks](https://docs.stripe.com/webhooks), and
+[Stripe Checkout](https://docs.stripe.com/api/checkout/sessions/create).

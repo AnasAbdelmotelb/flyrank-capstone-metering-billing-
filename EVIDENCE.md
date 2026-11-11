@@ -1,4 +1,4 @@
-# Evidence - first milestone
+# Evidence
 
 Executed locally on 2026-11-11 using `.venv/bin/python -m pytest -q`:
 
@@ -31,11 +31,37 @@ the probe. Start the API before running it.
 | Validation and no rejected usage | Seven `test_bad_input` cases assert 422 and zero events |
 | Month rollover and historical retries | `test_utc_month_reset_and_old_retry` crosses December/January |
 
-## Pending proof
+## Stripe and background processing - 2026-11-11
+
+Executed `.venv/bin/python -m pytest -q` after implementation:
+
+```text
+...........................                                              [100%]
+27 passed, 1 warning in 0.66s
+```
+
+| Requirement | Actual passing automated proof |
+| --- | --- |
+| Authenticated Checkout, repeated session reuse, Free -> Pro limits | `test_checkout_auth_and_reuse` (Stripe network calls replaced by fixtures; real SDK signature verification) |
+| Forged, expired, and live-mode events rejected with no mutation | `test_forged_expired_and_live_webhooks` |
+| One processing of simultaneous duplicate events | `test_event_replay_and_concurrent_delivery`: 12 deliveries, exactly one processed and 11 duplicates |
+| Payment failure -> 402, cancellation -> Free, stale events do not revive Pro | `test_payment_failure_cancellation_and_stale_event` |
+| Upstream failures are retryable, not marked processed | `test_failed_sync_can_retry` |
+| Unexpected price cannot upgrade a tenant | `test_wrong_price_does_not_upgrade` |
+| Live API keys cannot create Checkout | `test_unconfigured_and_live_keys_fail_closed` |
+| Durable monthly rollup, concurrent worker safety and tenant isolation | `test_rollup_idempotence_and_isolation` |
+| Three retries, backoff, rollback and visible failure alert | `test_retry_failure_alert_and_rollback` |
+| Recovery after worker crash and final-attempt crash alert | `test_worker_crash_recovery`; `test_last_attempt_crash_alert` |
+| Concurrent startup migrations | `test_concurrent_migrations` |
+
+The Stripe tests verify official SDK signatures over locally signed fixtures.
+They do not prove real account Checkout or Stripe-origin event delivery.
+
+## Pending real-account proof
 
 - Real Stripe test Checkout and updated Pro limits.
-- Forged signature rejected; genuine webhook replay processed once.
-- Background job retries and failure alert.
-- Clean-machine setup and public repository submission.
+- Genuine CLI webhook delivery and genuine test-event replay.
+- Fresh-clone account-dependent setup.
 
-This file deliberately does not mark the whole capstone complete.
+Follow STRIPE_SETUP.md and paste sanitized real results here. This file deliberately
+does not mark the whole capstone complete.

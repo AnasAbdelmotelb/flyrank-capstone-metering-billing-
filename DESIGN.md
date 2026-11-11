@@ -41,5 +41,9 @@ Free: 1,000 calls / 100,000 tokens. Pro: 10,000 calls / 1,000,000 tokens.
 4. Background monthly rollup job with durable retries and failure alerts;
    full evidence and public repository submission.
 
-Stripe and the background job are pending subsequent phases. Subscription state
-is local demo data in this first milestone. No public repository is provisioned yet.
+Stripe test integration and the leased background rollup worker are implemented.
+Verified webhook events retrieve current subscription state under the write lock;
+event deduplication and the mirror update commit together. A separate worker
+produces closed-month rollups, retries failures, recovers expired leases, and
+persists failure alerts exposed through authenticated HTTP reads. Public GitHub
+history is configured. Genuine Stripe Checkout verification remains pending.

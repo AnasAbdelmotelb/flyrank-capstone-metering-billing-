@@ -1,4 +1,4 @@
-run: .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+run: .venv/bin/python -m app.run
 seed: .venv/bin/python -m app.seed
 test: .venv/bin/python -m pytest -q
 base_url: http://127.0.0.1:8000
@@ -6,5 +6,9 @@ endpoints:
   health: GET /health
   generate: POST /generate
   usage: GET /usage
+  checkout: POST /billing/checkout
+  stripe_webhook: POST /webhooks/stripe
+  history: GET /usage/history
+  alerts: GET /jobs/alerts
 authentication: Bearer API key printed once by seed; POST also requires Idempotency-Key
-status: core-complete-stripe-and-background-job-pending
+status: implemented-live-stripe-verification-pending

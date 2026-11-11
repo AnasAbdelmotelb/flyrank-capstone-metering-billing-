@@ -3,6 +3,10 @@ import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / '.env')
+
 
 @contextmanager
 def connection(path=None):
@@ -21,12 +25,19 @@ def connection(path=None):
 
 def migrate(path=None):
     with connection(path) as db:
+        db.execute('BEGIN IMMEDIATE')
         db.execute('CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY)')
         folder = Path(__file__).resolve().parent.parent / 'migrations'
         for file in sorted(folder.glob('*.sql')):
             if not db.execute('SELECT 1 FROM schema_migrations WHERE name=?', (file.name,)).fetchone():
-                # Explicit transaction includes both DDL and migration marker.
-                script = "BEGIN IMMEDIATE;\n" + file.read_text()
-                db.executescript(script)
+                # executescript implicitly commits, so execute complete statements
+                # separately to keep discovery, DDL and markers in one transaction.
+                statement = ''
+                for line in file.read_text().splitlines(keepends=True):
+                    statement += line
+                    if sqlite3.complete_statement(statement):
+                        db.execute(statement)
+                        statement = ''
+                if statement.strip():
+                    raise ValueError(f'Incomplete migration: {file.name}')
                 db.execute('INSERT INTO schema_migrations VALUES (?)', (file.name,))
-                db.commit()
