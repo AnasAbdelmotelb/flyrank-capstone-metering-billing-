@@ -1,0 +1,10 @@
+run: .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000
+seed: .venv/bin/python -m app.seed
+test: .venv/bin/python -m pytest -q
+base_url: http://127.0.0.1:8000
+endpoints:
+  health: GET /health
+  generate: POST /generate
+  usage: GET /usage
+authentication: Bearer API key printed once by seed; POST also requires Idempotency-Key
+status: core-complete-stripe-and-background-job-pending
