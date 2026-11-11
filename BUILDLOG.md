@@ -49,3 +49,10 @@ the local official prebuilt binary path avoids changing system development tools
 No Stripe account was created by the agent, no secret values were printed, and
 no real-account Checkout verification is claimed. The user must configure their
 test account locally and complete browser authentication/payment steps.
+
+Fresh-clone verification used public GitHub commit 3c1f9f1 in an isolated temp
+directory with a new venv and no copied .env/database. Requirements installation,
+seed, all 27 tests, secret pattern checks, worker --once, combined startup, and
+live HTTP smoke passed. This was a fresh checkout on the same host, not another
+machine. The official Stripe CLI v1.55.10 arm64 archive checksum matched the
+official Homebrew formula; `.tools/stripe --version` confirmed installation.

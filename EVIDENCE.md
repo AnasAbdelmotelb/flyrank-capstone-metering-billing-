@@ -57,7 +57,29 @@ Executed `.venv/bin/python -m pytest -q` after implementation:
 The Stripe tests verify official SDK signatures over locally signed fixtures.
 They do not prove real account Checkout or Stripe-origin event delivery.
 
-## Pending real-account proof
+## Fresh public clone verification - 2026-11-11
+
+Cloned the public GitHub repository at commit `3c1f9f1` into a new temporary
+directory. Created a fresh venv and installed only `requirements.txt`, with no
+project `.env`, local tools, or database copied in. Observed:
+
+```text
+Fresh-clone seed: two demo tenants created; credentials omitted
+27 passed, 1 warning in 2.81s
+Repository check passed: env/database files excluded; no matching Stripe/private-key credentials in candidate files.
+```
+
+`.venv/bin/python -m app.worker --once` exited 0. The exact documented
+`.venv/bin/python -m app.run` command started successfully. Live HTTP check:
+
+```text
+Live HTTP smoke passed: identical retry, one call, 1500 tokens, 6600 micro-USD
+```
+
+This verifies a fresh checkout on this machine, not a separate clean operating
+system. Real Stripe-account setup was not tested in this clone.
+
+## Pending real-account proof (submission gate)
 
 - Real Stripe test Checkout and updated Pro limits.
 - Genuine CLI webhook delivery and genuine test-event replay.
