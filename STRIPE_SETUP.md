@@ -1,5 +1,12 @@
 # Stripe test verification before submission
 
+The submission repository now contains completed genuine Stripe verification
+evidence from 2026-11-13. These instructions explain how to reproduce it with your
+own test account. A local temporary sandbox was also provisioned for the original
+verification and expires 2026-11-19 unless claimed; its credentials are not in Git.
+The application accepts standard test keys and claimable-sandbox `rkcs_test_`
+keys, while rejecting live key formats and live Stripe objects/events.
+
 Use a Stripe test environment only. Never enable live mode or provide a real card.
 See [Stripe CLI installation](https://docs.stripe.com/cli/install),
 [webhook testing](https://docs.stripe.com/webhooks), and

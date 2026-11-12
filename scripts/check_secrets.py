@@ -7,7 +7,7 @@ from pathlib import Path
 def main():
     names = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z']).decode().split('\0')
     history = subprocess.check_output(['git', 'log', '--all', '--format=', '--name-only']).decode().splitlines()
-    key_pattern = re.compile(rb'(?:sk|rk)_(?:test|live)_[A-Za-z0-9]{24,}|whsec_[A-Za-z0-9]{24,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----')
+    key_pattern = re.compile(rb'(?:sk|rk|rkcs)_(?:test|live)_[A-Za-z0-9]{24,}|whsec_[A-Za-z0-9]{24,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----')
     problems = []
     for name in set(names + history):
         if not name:

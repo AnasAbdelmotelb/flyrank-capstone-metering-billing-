@@ -79,11 +79,43 @@ Live HTTP smoke passed: identical retry, one call, 1500 tokens, 6600 micro-USD
 This verifies a fresh checkout on this machine, not a separate clean operating
 system. Real Stripe-account setup was not tested in this clone.
 
-## Pending real-account proof (submission gate)
+## Genuine Stripe test verification - 2026-11-13
 
-- Real Stripe test Checkout and updated Pro limits.
-- Genuine CLI webhook delivery and genuine test-event replay.
-- Fresh-clone account-dependent setup.
+Final local suite after adding claimable-sandbox key support:
 
-Follow STRIPE_SETUP.md and paste sanitized real results here. This file deliberately
-does not mark the whole capstone complete.
+```text
+..............................                                           [100%]
+30 passed, 1 warning in 0.67s
+```
+
+The warning is the previously documented Starlette/httpx deprecation. Repository
+credential-pattern checks and `git diff --check` also passed.
+
+Completed hosted Stripe Checkout using its public test card in a genuine,
+claimable Stripe sandbox (no real money). The application used an isolated
+verification database and localhost port 8011 so existing demo data was preserved.
+Stripe network calls and original webhook delivery were not mocked.
+
+Full sanitized responses: [stripe-live-verification.json](evidence/stripe-live-verification.json).
+Actual CLI deliveries: [stripe-cli-delivery.log](evidence/stripe-cli-delivery.log).
+Hosted Checkout returned to the success URL:
+[screenshot](evidence/stripe-checkout-return.png).
+
+| Acceptance check | Observed result |
+| --- | --- |
+| Hosted Checkout | Session `cs_test_a0NisRv6xf2OqFt5TrqVLkHnflBG3APloM0lbv1lUsdD7DZF6cBE04Q8Dn`: complete, paid, livemode=false |
+| Free -> Pro | `/usage` changed from 1000 calls/100000 tokens to 10000 calls/1000000 tokens |
+| Genuine delivery | Checkout event `evt_1Ub6D19Pz1UWZoyqXe4M4kVs` and subscription-created event `evt_1Ub6D29Pz1UWZoyqohVlgC6W` both delivered via Stripe CLI, HTTP 200 |
+| Metering and exact cost | Same request twice returned identical response; one call, 1500 tokens, 6600 micro-USD |
+| Forged webhook | Invalid signature returned 400 and usage stayed unchanged |
+| Genuine event replay | Retrieved the actual Checkout event and locally re-signed it twice; both returned HTTP 200/duplicate, with exactly one stored event row |
+| Cancellation | Canceled the disposable test subscription through Stripe; genuine deleted event `evt_1Ub6FC9Pz1UWZoyqMyQZy4rc` delivered with 200; tenant returned to Free, keeping the one call/1500 tokens/6600 micro-USD |
+
+Replay distinction: initial events came from Stripe through its CLI listener;
+the duplicate probes were locally signed replays of the genuine event, not new
+Stripe-origin deliveries. Automated concurrent-delivery tests separately prove
+one processing under races.
+
+The sandbox expires 2026-11-19 unless claimed. Keys, claim links, customer details,
+and databases are excluded from this evidence and Git. Evaluators should configure
+their own test environment using STRIPE_SETUP.md to reproduce these checks.

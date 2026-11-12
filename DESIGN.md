@@ -46,4 +46,5 @@ Verified webhook events retrieve current subscription state under the write lock
 event deduplication and the mirror update commit together. A separate worker
 produces closed-month rollups, retries failures, recovers expired leases, and
 persists failure alerts exposed through authenticated HTTP reads. Public GitHub
-history is configured. Genuine Stripe Checkout verification remains pending.
+history is configured. Genuine Stripe Checkout, signed CLI delivery, duplicate
+replay, signature rejection and cancellation were verified on 2026-11-13.

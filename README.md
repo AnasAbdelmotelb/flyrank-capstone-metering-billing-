@@ -2,8 +2,9 @@
 
 FastAPI + SQLite backend for tenant-scoped monthly usage, quotas, and costs.
 Stripe test Checkout, signed subscription webhooks, and a durable monthly rollup
-worker are implemented. Local automated checks pass. A genuine Stripe test
-Checkout and replay still need account-specific verification before submission.
+worker are implemented. Automated tests and a fresh public clone check pass.
+Genuine Stripe test Checkout, CLI webhook delivery, signature rejection, event
+replay, and cancellation were verified on 2026-11-13. See [EVIDENCE.md](EVIDENCE.md).
 
 ## Architecture
 
@@ -131,8 +132,9 @@ Slack notifications are sent. Current-month `/usage` always reads source events.
 
 ## Remaining work and limitations
 
-- Complete real Stripe test Checkout and CLI replay evidence (see setup guide).
-- Repeat account-dependent setup on a fresh clone before portal submission.
+- The temporary verification sandbox expires 2026-11-19 unless claimed. Saved
+  evidence remains in the repository. Configure your own test keys and recurring
+  price to reproduce payment checks; credentials are intentionally excluded.
 - SQLite serializes writes; this local demo is intended for modest workloads.
   Stripe network calls have an 8-second timeout and hold the write lock, trading
   throughput for simple ordering. Failed calls leave events retryable.

@@ -150,6 +150,13 @@ def test_unconfigured_and_live_keys_fail_closed(database, monkeypatch):
         assert client.post('/billing/checkout', headers={'Authorization': 'Bearer a'}).status_code == 503
 
 
+@pytest.mark.parametrize('prefix', ['sk_test_', 'rk_test_', 'rkcs_test_'])
+def test_supported_test_key_formats(monkeypatch, prefix):
+    monkeypatch.setenv('STRIPE_SECRET_KEY', prefix + 'fixture_only')
+    monkeypatch.setenv('STRIPE_PRO_PRICE_ID', 'price_fixture')
+    assert StripeGateway().client() is not None
+
+
 def test_rollup_idempotence_and_isolation(database):
     clock = lambda: datetime(2026, 10, 10, tzinfo=timezone.utc)
     MeterService(database, clock).record('a', 'rollup', TokenUsage(input_tokens=100))

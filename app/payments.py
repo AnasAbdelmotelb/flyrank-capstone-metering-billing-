@@ -18,7 +18,7 @@ class StripeGateway:
         self.key = os.getenv('STRIPE_SECRET_KEY', '')
 
     def client(self):
-        if not self.key.startswith('sk_test_') or not self.price.startswith('price_'):
+        if not self.key.startswith(('sk_test_', 'rk_test_', 'rkcs_test_')) or not self.price.startswith('price_'):
             raise BillingError(503, 'Configure Stripe test key and Pro price locally')
         return stripe.StripeClient(self.key, max_network_retries=0,
                                    http_client=stripe.RequestsClient(timeout=8))

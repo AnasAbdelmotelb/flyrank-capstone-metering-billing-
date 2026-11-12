@@ -1,0 +1,110 @@
+{
+  "verified_at": "2026-11-13T00:13:21.399973+02:00",
+  "environment": "Genuine Stripe claimable test sandbox; no real money",
+  "sandbox_expires": "2026-11-19",
+  "checkout_session_id": "cs_test_a0NisRv6xf2OqFt5TrqVLkHnflBG3APloM0lbv1lUsdD7DZF6cBE04Q8Dn",
+  "before_checkout": {
+    "month": "2026-11",
+    "plan": "free",
+    "status": "active",
+    "used": {
+      "api_calls": 0,
+      "ai_tokens": 0,
+      "cost_microusd": 0
+    },
+    "limits": {
+      "api_calls": 1000,
+      "ai_tokens": 100000
+    },
+    "currency": "USD",
+    "money_unit": "micro-dollar"
+  },
+  "after_checkout": {
+    "month": "2026-11",
+    "plan": "pro",
+    "status": "active",
+    "used": {
+      "api_calls": 0,
+      "ai_tokens": 0,
+      "cost_microusd": 0
+    },
+    "limits": {
+      "api_calls": 10000,
+      "ai_tokens": 1000000
+    },
+    "currency": "USD",
+    "money_unit": "micro-dollar"
+  },
+  "billable_retry": {
+    "status": 200,
+    "identical_response": true,
+    "response": {
+      "event_id": "2ea64eec-a8d8-45e6-ae06-c60d60052397",
+      "result": "Simulated generation complete",
+      "month": "2026-11",
+      "api_calls": 1,
+      "ai_tokens": 1500,
+      "cost_microusd": 6600,
+      "pricing_version": "v1"
+    }
+  },
+  "forged_signature": {
+    "status": 400,
+    "response": {
+      "detail": "Invalid webhook payload or signature"
+    },
+    "usage_unchanged": true
+  },
+  "genuine_event_local_replay": {
+    "event_id": "evt_1Ub6D19Pz1UWZoyqXe4M4kVs",
+    "responses": [
+      {
+        "http_status": 200,
+        "status": "duplicate"
+      },
+      {
+        "http_status": 200,
+        "status": "duplicate"
+      }
+    ],
+    "stored_event_rows": 1,
+    "note": "Genuine Stripe event retrieved via SDK and locally re-signed; initial delivery was Stripe-origin through CLI."
+  },
+  "stripe_checkout": {
+    "id": "cs_test_a0NisRv6xf2OqFt5TrqVLkHnflBG3APloM0lbv1lUsdD7DZF6cBE04Q8Dn",
+    "status": "complete",
+    "payment_status": "paid",
+    "livemode": false,
+    "subscription": "sub_1Ub6D09Pz1UWZoyq4u3qTyvN"
+  },
+  "after_cancellation": {
+    "month": "2026-11",
+    "plan": "free",
+    "status": "active",
+    "used": {
+      "api_calls": 1,
+      "ai_tokens": 1500,
+      "cost_microusd": 6600
+    },
+    "limits": {
+      "api_calls": 1000,
+      "ai_tokens": 100000
+    },
+    "currency": "USD",
+    "money_unit": "micro-dollar"
+  },
+  "processed_stripe_events": [
+    {
+      "id": "evt_1Ub6D19Pz1UWZoyqXe4M4kVs",
+      "type": "checkout.session.completed"
+    },
+    {
+      "id": "evt_1Ub6D29Pz1UWZoyqohVlgC6W",
+      "type": "customer.subscription.created"
+    },
+    {
+      "id": "evt_1Ub6FC9Pz1UWZoyqMyQZy4rc",
+      "type": "customer.subscription.deleted"
+    }
+  ]
+}

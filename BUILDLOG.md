@@ -56,3 +56,25 @@ seed, all 27 tests, secret pattern checks, worker --once, combined startup, and
 live HTTP smoke passed. This was a fresh checkout on the same host, not another
 machine. The official Stripe CLI v1.55.10 arm64 archive checksum matched the
 official Homebrew formula; `.tools/stripe --version` confirmed installation.
+
+## 2026-11-13 - Genuine Stripe acceptance verification
+
+The user authorized completing the final verification. The local env still held
+placeholders and the CLI had no existing account login. Codex discovered and used
+Stripe's official claimable-sandbox workflow, using the Git identity, with secrets
+stored in ignored local files. The sandbox expires 2026-11-19 unless claimed.
+
+Real SDK calls created a recurring test price. A hosted test-card Checkout was
+completed in the browser; the official CLI forwarded signed Checkout and
+subscription events to an isolated database/server on port 8011. Observed Free
+-> Pro, exact metering and cost under retry, 400 forgery rejection, duplicate
+replay with one stored event, and a real test cancellation reverting to Free
+without losing usage. Sanitized responses, delivery logs and a return-page
+screenshot are stored in evidence/.
+
+The new sandbox key uses rkcs_test_, which the original test-key guard did not
+recognize. AI updated the guard and added tests for standard, restricted and
+claimable test key formats. An initial private diagnostic redactor also missed
+this new prefix; the repository credential scanner was expanded. No credentials
+were committed. Duplicate replay is documented accurately as locally re-signed
+genuine event data, distinct from original Stripe-origin CLI delivery.

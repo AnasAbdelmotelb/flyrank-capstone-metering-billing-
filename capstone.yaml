@@ -11,4 +11,4 @@ endpoints:
   history: GET /usage/history
   alerts: GET /jobs/alerts
 authentication: Bearer API key printed once by seed; POST also requires Idempotency-Key
-status: implemented-live-stripe-verification-pending
+status: verified-ready-for-submission

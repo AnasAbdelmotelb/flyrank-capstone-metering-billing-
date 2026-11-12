@@ -1,0 +1,6 @@
+2026-11-13 00:11:08   --> checkout.session.completed [evt_1Ub6D19Pz1UWZoyqXe4M4kVs]
+2026-11-13 00:11:08   --> customer.subscription.created [evt_1Ub6D29Pz1UWZoyqohVlgC6W]
+2026-11-13 00:11:08  <--  [200] POST http://127.0.0.1:8011/webhooks/stripe [evt_1Ub6D19Pz1UWZoyqXe4M4kVs]
+2026-11-13 00:11:09  <--  [200] POST http://127.0.0.1:8011/webhooks/stripe [evt_1Ub6D29Pz1UWZoyqohVlgC6W]
+2026-11-13 00:13:22   --> customer.subscription.deleted [evt_1Ub6FC9Pz1UWZoyqMyQZy4rc]
+2026-11-13 00:13:23  <--  [200] POST http://127.0.0.1:8011/webhooks/stripe [evt_1Ub6FC9Pz1UWZoyqMyQZy4rc]
